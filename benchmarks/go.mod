@@ -2,6 +2,8 @@ module github.com/NikoMalik/bloom/benchmarks
 
 go 1.26.7
 
+replace github.com/NikoMalik/bloom => ../
+
 require (
 	github.com/NikoMalik/bloom v0.0.0-20261004133022-b97d2d572471 // indirect
 	github.com/NikoMalik/fxhash v0.0.0-20261004124255-3d2ea646dc38 // indirect

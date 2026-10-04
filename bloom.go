@@ -16,16 +16,6 @@ const bitShift = 32 - 9
 const wordsPerBucket = cacheLineBytes / 8 //
 
 const golden_ratio uint32 = 0x9e3779b9
-const c1 uint64 = 0xbf58476d1ce4e5b9
-const c2 uint64 = 0x94d049bb133111eb
-
-func mix(x uint64) uint64 {
-	var v = x
-	v = (v ^ (v >> 30)) * c1
-	v = (v ^ (v >> 27)) * c2
-	v = v ^ (v >> 31)
-	return v
-}
 
 const DEFAULT_BITCOUNT = 1024
 
@@ -134,7 +124,10 @@ func (b *BloomFilter) containsHash(mixed uint64) bool {
 			return false
 		}
 
+		h ^= h >> 15
 		h *= golden_ratio
+		h ^= h >> 13
+
 	}
 	return true
 }

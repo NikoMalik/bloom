@@ -97,16 +97,16 @@ func newNiko() *nikobloom.BloomFilter {
 }
 
 func newPhrozen() *phrozenbloom.Filter {
-	return phrozenbloom.NewFilter(numBits, numProbes)
+	return phrozenbloom.NewFilter(1<<24, numProbes)
 }
 
 func newPhrozenXXH3() *phrozenbloom.Filter {
-	return phrozenbloom.NewFilter(numBits, numProbes,
+	return phrozenbloom.NewFilter(1<<24, numProbes,
 		phrozenbloom.WithHashFunc(func() hash.Hash64 { return xxhash.New() }))
 }
 
 func newPhrozenFx() *phrozenbloom.Filter {
-	return phrozenbloom.NewFilter(numBits, numProbes,
+	return phrozenbloom.NewFilter(1<<24, numProbes,
 		phrozenbloom.WithHashFunc(func() hash.Hash64 { return newFxHasherAdapter() }))
 }
 

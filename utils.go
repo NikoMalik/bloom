@@ -5,6 +5,9 @@ import (
 	"unsafe"
 )
 
+const c1 uint32 = 0xbf58476d
+const c2 uint32 = 0x94d049bb
+
 func nextPowerOfTwo(i uint32) uint32 {
 	i--
 	i |= i >> 1
@@ -12,9 +15,17 @@ func nextPowerOfTwo(i uint32) uint32 {
 	i |= i >> 4
 	i |= i >> 8
 	i |= i >> 16
-	i |= i >> 32
 	i++
 	return i
+}
+
+func mix(x uint32) uint32 {
+	var v = x
+	v = (v ^ (v >> 30)) * c1
+	v = (v ^ (v >> 27)) * c2
+	v = v ^ (v >> 31)
+	return v
+
 }
 
 func alignSlice[T any](n, align int) []T {
