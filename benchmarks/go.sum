@@ -1,2 +1,10 @@
+github.com/NikoMalik/bloom v0.0.0-20261004133022-b97d2d572471 h1:28LpnxyLQjpzGeaxFZQY8ZvAApF2PfepkwFXkxaPSkc=
+github.com/NikoMalik/bloom v0.0.0-20261004133022-b97d2d572471/go.mod h1:+46g1Ryfle86aY8CPSySIx5gN2ivXnaa46NgSU0bYk4=
+github.com/NikoMalik/fxhash v0.0.0-20261004124255-3d2ea646dc38 h1:AWQsaDVud/H9eAGdwnZwL3cxQD+5vM7kT/fC+oUZhCs=
+github.com/NikoMalik/fxhash v0.0.0-20261004124255-3d2ea646dc38/go.mod h1:ILVhQFfzlc7u/K+b3EK7bTJxFaFOHTqzybhd6Vvkwug=
+github.com/cespare/xxhash/v2 v2.3.0 h1:UL815xU9SqsFlibzuggzjXhog7bL6oX9BbNZnL2UFvs=
+github.com/cespare/xxhash/v2 v2.3.0/go.mod h1:VGX0DQ3Q6kWi7AoAeZDth3/j3BFtOZR5XLFGgcrjCOs=
 github.com/phrozen/bloom v0.2.0 h1:9ajlkiLnuFbQF5QXII1yZ6BqzR8rBWiP9qpbnHWDnFI=
 github.com/phrozen/bloom v0.2.0/go.mod h1:AAnFTEIC4iMjgqDEwz2XIARd7WCsCpex8pOmBWR0els=
+golang.org/x/sys v0.48.0 h1:bbX/i/6MgT9BVLM9RT1thmxL04yeTAhbEz4SyadbXoo=
+golang.org/x/sys v0.48.0/go.mod h1:hNLxWAXmnKAxqDtdwIYC4bM9oQPEecfsnNMuSxOs3og=

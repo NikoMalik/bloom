@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"sync"
 	"testing"
+	"unsafe"
 )
 
 func key(i uint64) uint64 { return i*0x9e3779b97f4a7c15 + 0xdeadbeef }
@@ -190,5 +191,14 @@ func TestMixedKeyspaces(t *testing.T) {
 	}
 	if !bf.ContainsString("world") {
 		t.Fatal("string key lost")
+	}
+}
+
+func TestDataAlignment(t *testing.T) {
+	f := NewFilter(1 << 24)
+	addr := uintptr(unsafe.Pointer(&f.data[0]))
+	if addr%uintptr(cacheLineBytes) != 0 {
+		t.Fatalf("data not cache-line aligned: addr=%x %% %d = %d",
+			addr, cacheLineBytes, addr%uintptr(cacheLineBytes))
 	}
 }

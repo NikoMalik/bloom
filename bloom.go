@@ -30,9 +30,9 @@ func mix(x uint64) uint64 {
 const DEFAULT_BITCOUNT = 1024
 
 type BloomFilter struct {
-	_          cpu.CacheLinePad
 	data       []atomic.Uint64
 	numBuckets uint32
+	bucketMask uint32
 }
 
 func NewFilter(bitCount uint32) *BloomFilter {
@@ -40,7 +40,12 @@ func NewFilter(bitCount uint32) *BloomFilter {
 		bitCount = DEFAULT_BITCOUNT
 	}
 
-	var numBuckets = max(1, (bitCount+cacheLineBits-1)/cacheLineBits)
+	if !isPowerOfTwo(uint(bitCount)) {
+		bitCount = uint32(nextPowerOfTwo(bitCount))
+	}
+
+	// cacheLineBits is power of two, so division is exact
+	numBuckets := max(1, bitCount/cacheLineBits)
 	var totalWords = numBuckets * wordsPerBucket
 
 	var data = alignSlice[atomic.Uint64](int(totalWords), int(cacheLineBits))
@@ -48,6 +53,7 @@ func NewFilter(bitCount uint32) *BloomFilter {
 	return &BloomFilter{
 		data:       data,
 		numBuckets: numBuckets,
+		bucketMask: numBuckets - 1,
 	}
 }
 
@@ -81,7 +87,8 @@ func (b *BloomFilter) ContainsString(data string) bool {
 
 func (b *BloomFilter) addHash(mixed uint64) {
 	h1 := uint32(mixed)
-	bucket := fastrange_u32(h1, b.numBuckets)
+	// bucket := fastrange_u32(h1, b.numBuckets)
+	bucket := h1 & b.bucketMask
 	off := bucket * wordsPerBucket
 
 	h := uint32(mixed >> 32)
@@ -95,7 +102,10 @@ func (b *BloomFilter) addHash(mixed uint64) {
 		bitIdx := bitpos & 63
 		words[wordIdx] |= 1 << bitIdx
 		touched |= 1 << wordIdx
+
+		h ^= h >> 15
 		h *= golden_ratio
+		h ^= h >> 13
 	}
 
 	for touched != 0 {
@@ -107,7 +117,9 @@ func (b *BloomFilter) addHash(mixed uint64) {
 
 func (b *BloomFilter) containsHash(mixed uint64) bool {
 	h1 := uint32(mixed)
-	bucket := fastrange_u32(h1, b.numBuckets)
+	// bucket := fastrange_u32(h1, b.numBuckets)
+	bucket := h1 & b.bucketMask
+
 	off := bucket * wordsPerBucket
 
 	h := uint32(mixed >> 32)

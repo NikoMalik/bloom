@@ -5,6 +5,18 @@ import (
 	"unsafe"
 )
 
+func nextPowerOfTwo(i uint32) uint32 {
+	i--
+	i |= i >> 1
+	i |= i >> 2
+	i |= i >> 4
+	i |= i >> 8
+	i |= i >> 16
+	i |= i >> 32
+	i++
+	return i
+}
+
 func alignSlice[T any](n, align int) []T {
 	if n <= 0 {
 		return nil
@@ -33,6 +45,10 @@ func alignSlice[T any](n, align int) []T {
 func fastrange(word, p uint64) uint64 {
 	hi, _ := bits.Mul64(word, p)
 	return hi
+}
+
+func isPowerOfTwo(x uint) bool {
+	return x&(x-1) == 0
 }
 
 func fastrange_u32(word, p uint32) uint32 {
