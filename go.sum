@@ -1,0 +1,4 @@
+github.com/NikoMalik/fxhash v0.0.0-20261004124255-3d2ea646dc38 h1:AWQsaDVud/H9eAGdwnZwL3cxQD+5vM7kT/fC+oUZhCs=
+github.com/NikoMalik/fxhash v0.0.0-20261004124255-3d2ea646dc38/go.mod h1:ILVhQFfzlc7u/K+b3EK7bTJxFaFOHTqzybhd6Vvkwug=
+golang.org/x/sys v0.48.0 h1:bbX/i/6MgT9BVLM9RT1thmxL04yeTAhbEz4SyadbXoo=
+golang.org/x/sys v0.48.0/go.mod h1:hNLxWAXmnKAxqDtdwIYC4bM9oQPEecfsnNMuSxOs3og=
