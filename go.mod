@@ -1,6 +1,6 @@
 module github.com/NikoMalik/bloom
 
-go 1.26.0
+go 1.24.4
 
 require (
 	github.com/NikoMalik/fxhash v0.0.0-20261004124255-3d2ea646dc38 // indirect
