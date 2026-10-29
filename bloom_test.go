@@ -202,3 +202,46 @@ func TestDataAlignment(t *testing.T) {
 			addr, cacheLineBytes, addr%uintptr(cacheLineBytes))
 	}
 }
+
+func TestWholeCacheLineUsed(t *testing.T) {
+	bf := NewFilter(bucketBits)
+	if bf.numBuckets != 1 {
+		t.Fatalf("expected 1 bucket, got %d", bf.numBuckets)
+	}
+	for i := uint64(0); i < 2_000; i++ {
+		bf.Add(key(i))
+	}
+	for i := range bf.data {
+		if bf.data[i].Load() == 0 {
+			t.Fatalf("word %d of %d never set, probes miss part of the line", i, len(bf.data))
+		}
+	}
+}
+
+func TestNewFilterTooLargePanics(t *testing.T) {
+	defer func() {
+		if recover() == nil {
+			t.Fatal("expected panic for bitCount > 2^31")
+		}
+	}()
+	NewFilter(1<<31 + 1)
+}
+
+func TestShiftedKeysFPR(t *testing.T) {
+	const n = 20_000
+	for _, shift := range []uint{0, 8, 32, 40, 44} {
+		bf := NewFilter(32 * n)
+		for i := uint64(0); i < n; i++ {
+			bf.Add(i << shift)
+		}
+		fp := 0
+		for i := uint64(n); i < 2*n; i++ {
+			if bf.Contains(i << shift) {
+				fp++
+			}
+		}
+		if rate := float64(fp) / n; rate > 1e-3 {
+			t.Fatalf("shift %d: FPR %f, fill %f", shift, rate, bf.FillRatio())
+		}
+	}
+}

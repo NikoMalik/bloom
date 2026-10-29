@@ -1,6 +1,7 @@
 package bloom
 
 import (
+	"fmt"
 	"math/bits"
 	"sync/atomic"
 	"unsafe"
@@ -10,10 +11,14 @@ import (
 )
 
 const cacheLineBytes uint32 = uint32(unsafe.Sizeof(cpu.CacheLinePad{}))
-const cacheLineBits = cacheLineBytes * 8 // 512
+const bucketBytes = min(cacheLineBytes, 64)
+const bucketBits = bucketBytes * 8
 const numProbes = 6
-const bitShift = 32 - 9
-const wordsPerBucket = cacheLineBytes / 8 //
+const bucketBitsLog2 = 8*(bucketBits>>8&1) + 9*(bucketBits>>9&1)
+const bitShift = 32 - bucketBitsLog2
+const wordsPerBucket = bucketBytes / 8
+
+var _ = [1]struct{}{}[bucketBits-1<<bucketBitsLog2]
 
 const golden_ratio uint32 = 0x9e3779b9
 
@@ -29,16 +34,19 @@ func NewFilter(bitCount uint32) *BloomFilter {
 	if bitCount == 0 {
 		bitCount = DEFAULT_BITCOUNT
 	}
+	if bitCount > 1<<31 {
+		panic(fmt.Sprintf("bloom: bitCount %d exceeds 2^31", bitCount))
+	}
 
 	if !isPowerOfTwo(uint(bitCount)) {
 		bitCount = uint32(nextPowerOfTwo(bitCount))
 	}
 
-	// cacheLineBits is power of two, so division is exact
-	numBuckets := max(1, bitCount/cacheLineBits)
+	// bucketBits is power of two, so division is exact
+	numBuckets := max(1, bitCount/bucketBits)
 	var totalWords = numBuckets * wordsPerBucket
 
-	var data = alignSlice[atomic.Uint64](int(totalWords), int(cacheLineBits))
+	var data = alignSlice[atomic.Uint64](int(totalWords), int(cacheLineBytes))
 
 	return &BloomFilter{
 		data:       data,
@@ -48,7 +56,7 @@ func NewFilter(bitCount uint32) *BloomFilter {
 }
 
 func (b *BloomFilter) Add(key uint64) {
-	b.addHash(fxhash.Fxhash(key, 0))
+	b.addHash(mum(key))
 }
 
 func (b *BloomFilter) AddBytes(data []byte) {
@@ -83,7 +91,7 @@ func (b *BloomFilter) addHash(mixed uint64) {
 
 	h := uint32(mixed >> 32)
 
-	var words [8]uint64
+	var words [wordsPerBucket]uint64
 	var touched uint8
 
 	for range numProbes {
@@ -133,7 +141,7 @@ func (b *BloomFilter) containsHash(mixed uint64) bool {
 }
 
 func (b *BloomFilter) Contains(key uint64) bool {
-	return b.containsHash(fxhash.Fxhash(key, 0))
+	return b.containsHash(mum(key))
 }
 
 func (b *BloomFilter) Clear() {

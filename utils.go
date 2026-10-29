@@ -5,8 +5,7 @@ import (
 	"unsafe"
 )
 
-const c1 uint32 = 0xbf58476d
-const c2 uint32 = 0x94d049bb
+const mumK uint64 = 0xf1357aea2e62a9c5
 
 func nextPowerOfTwo(i uint32) uint32 {
 	i--
@@ -19,13 +18,9 @@ func nextPowerOfTwo(i uint32) uint32 {
 	return i
 }
 
-func mix(x uint32) uint32 {
-	var v = x
-	v = (v ^ (v >> 30)) * c1
-	v = (v ^ (v >> 27)) * c2
-	v = v ^ (v >> 31)
-	return v
-
+func mum(x uint64) uint64 {
+	hi, lo := bits.Mul64(x, mumK)
+	return hi ^ lo
 }
 
 func alignSlice[T any](n, align int) []T {
